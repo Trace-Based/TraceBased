@@ -1,0 +1,1556 @@
+\documentclass[]{llncs}
+
+
+
+\usepackage[dvipsnames]{xcolor}
+\usepackage{microtype}
+\usepackage{amsmath}
+%%\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{paralist}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{bchart}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usetikzlibrary{fit}
+\restylefloat{figure}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+
+\pagestyle{plain}
+\bibliographystyle{abbrv}
+
+
+%%%%%%%%%%%%%
+%% MACROS
+%%%%%%%%%%%%%
+
+\makeatletter
+\newcommand{\xRightarrow}[2][]{\ext@arrow 0359\Rightarrowfill@{#1}{#2}}
+\makeatother
+
+\newcommand{\cbox}[1]{\tikz \node[draw,circle, inner sep=0pt, minimum size=4mm]{#1};}
+
+% arrays
+
+\newcommand{\bi}{\begin{array}[t]{@{}l@{}}}
+\newcommand{\ei}{\end{array}}
+\newcommand{\ba}{\begin{array}}
+\newcommand{\ea}{\end{array}}
+\newcommand{\bda}{\[\ba}
+\newcommand{\eda}{\ea\]}
+\newcommand{\bp}{\begin{quote}\tt\begin{tabbing}}
+\newcommand{\ep}{\end{tabbing}\end{quote}}
+\newcommand{\set}[1]{\left\{
+    \begin{array}{l}#1
+    \end{array}
+  \right\}}
+\newcommand{\sset}[2]{\left\{~#1 \left|
+      \begin{array}{l}#2\end{array}
+    \right.     \right\}}
+
+
+\newcommand{\ignore}[1]{}
+
+
+\newcommand{\ms}[1]{{\bf MS: #1}}
+
+\newcommand{\mathem}{\sf}
+
+% rules and figures
+
+\newcommand{\fig}[3]
+        {\begin{figure*}[t]#3\
+            \caption{\label{#1}#2} \end{figure*}}
+
+\newcommand{\figurebox}[1]
+        {\fbox{\begin{minipage}{\textwidth} #1 \end{minipage}}}
+\newcommand{\boxfig}[3]
+        {\begin{figure*}\figurebox{#3\caption{\label{#1}#2}}\end{figure*}}
+
+\def\ruleform#1{{\setlength{\fboxrule}{1pt}\fbox{\normalsize $#1$}}}
+
+\newcommand{\myirule}[2]{{\renewcommand{\arraystretch}{1.2}\ba{c} #1
+                      \\ \hline #2 \ea}}
+
+\newcommand{\rlabel}[1]{\mbox{(#1)}}
+\newcommand{\turns}{\, \vdash \,}
+
+%% \newcommand{\match}[3]{#1 \stackrel{#2}{\Rightarrow} #3}
+\newcommand{\match}[3]{#1 \xRightarrow{#2} #3}
+
+\newcommand{\decU}[1]{#1 \downarrow}
+
+%% operators
+\newcommand\Angle[1]{\langle#1\rangle}
+\newcommand\Config[2]{(#1, #2)}
+\newcommand\ConfigP[3]{(#1, #2, #3)}
+\newcommand\Override{\lhd}
+\newcommand{\conc}{\cdot}%%{.}
+
+\newcommand{\gtTr}[2]{#1 <_{tr} #2}
+
+\newcommand{\reachE}[1]{{\mathem reach}(#1)}
+
+\newcommand{\thread}[2]{#1 \sharp #2}
+\newcommand{\replica}[2]{#1^{#2}}
+\newcommand{\threadID}[1]{\tid \sharp #1}
+\newcommand{\link}[2]{#1 | #2}
+\newcommand{\clock}[2]{#1^{#2}}
+\newcommand{\ppclock}[3]{^{#2}#1^{#3}}
+\newcommand{\ploc}[2]{(#1)_{#2}}
+
+\newcommand{\evtHistList}[2]{#1 \rhd #2}
+\newcommand{\writeHistList}[3]{#2 \rhd^{w(#1)} #3}
+\newcommand{\readHistList}[3]{#2 \rhd^{r(#1)} #3}
+
+\newcommand{\absent}{\bullet}
+
+\newcommand{\varState}[3]{#1^{(#2,#3)}}
+
+\newcommand{\initVC}{\overline{0}}
+
+\newcommand{\incC}[2]{{\mathem inc}(#1,#2)}
+\newcommand{\maxN}[2]{{\mathem max}(#1,#2)}
+\newcommand{\maxC}[2]{{\mathem max}(#1,#2)}
+\newcommand{\maxCC}[3]{{\mathem max}(#1,#2,#3)}
+
+\newcommand{\raceVC}[2]{{\mathem raceCheck}(#1,#2)}
+
+\newcommand{\supVC}[2]{#1 \sqcup #2}
+\newcommand{\lteVC}[2]{#1 \sqsubseteq #2}
+\newcommand{\accVC}[2]{#1[ #2 ]}
+\newcommand{\updateVC}[3]{#1[ #2 \mapsto #3 ]}
+
+\newcommand{\dom}[1]{{\mathit dom}(#1)}
+
+\newcommand{\sep}[2]{(#1 \mid #2)}
+
+\newcommand{\sepT}[3]{(#1 \mid #2 \mid #3)}
+
+\newcommand{\close}[1]{\mathit{close}(#1)}
+\newcommand{\select}{\mathit{select}}
+
+\newcommand{\first}{{\mathem fst}}
+\newcommand{\second}{{\mathem snd}}
+
+\newcommand{\head}{{\mathem head}}
+\newcommand{\last}{{\mathem last}}
+\newcommand{\pp}{\ \texttt{++}}
+
+%% Concurrent Go
+
+
+\newcommand{\INT}{\mbox{\mathem int}}
+\newcommand{\BOOL}{\mbox{\mathem bool}}
+\newcommand{\STRUCT}[1]{\mbox{\mathem{struct}\{#1\}}}
+\newcommand{\COMPOS}[1]{\{#1\}}
+%% \newcommand{\GO}{\mbox{\mathem go}}
+\newcommand{\GO}{\mbox{\mathem spawn}}
+\newcommand{\SELECT}{\mbox{\mathem select}}
+\newcommand{\MAKEBUFFERED}[2]{\mbox{\mathem make}({\mathem chan} \ #1, #2)}
+\newcommand{\MAKE}{\mbox{\mathem make}}
+\newcommand{\MAKECHAN}[1]{\mbox{\mathem make}({\mathem chan} \ #1)}
+\newcommand{\SYNCMAKECHAN}{\MAKECHAN{0}} %%{\mbox{\mathem makeChan}}
+\newcommand{\SEND}[2]{#1 \leftarrow #2}
+\newcommand{\RCV}[1]{\leftarrow #1}
+\newcommand{\CLOSE}[1]{\mbox{\mathem close}(#1)}
+\newcommand{\PRE}[3]{\mbox{\mathem{PRE}}  (#1, #2, #3)}
+\newcommand{\PREOP}{\mbox{\mathem{PRE}}}
+\newcommand{\POSTSND}[2]{\mbox{\mathem{POST}}  (#1, 0, #2)}
+\newcommand{\POSTRCV}[3]{\mbox{\mathem{POST}}  (#1, 1, #2, #3)}
+\newcommand{\POST}[4]{\mbox{\mathem{POST}} (#1,#2,#3,#4)}
+\newcommand{\POSTOP}{\mbox{\mathem{POST}}}
+\newcommand{\GID}{\mbox{\mathem{GID()}}}
+\newcommand{\LineNum}{\mbox{\mathem{LineNum()}}}
+\newcommand{\CHAN}[1]{\mbox{\mathem{chan}} \ #1}
+
+
+\newcommand{\LOCK}{\mbox{\mathem{lock}}}
+\newcommand{\UNLOCK}{\mbox{\mathem{unlock}}}
+
+\newcommand{\Chan}[2]{\mathit{Chan}^{#1}(#2)}
+\newcommand{\SyncChan}{\mathit{Chan}}
+
+
+\newcommand{\tid}{\mbox{\mathem{tid}}}
+\newcommand{\pc}{\mbox{\mathem{pc}}}
+\newcommand{\newTID}{\mbox{\mathem{tidB}}}
+\newcommand{\isBuffered}[1]{\mathem{isBuffered}(#1)}
+
+\newcommand{\atomicInc}[1]{\mathem{atomicInc}(#1)}
+
+\newcommand{\pre}[1]{\mathit{pre}(#1)}
+\newcommand{\post}[1]{\mathit{post}(#1)}
+\newcommand{\postSnd}[3]{\mathit{post}(#1,#2, #3 !)} %% post + snd with links
+\newcommand{\postRcv}[3]{\mathit{post}(#1,#2, #3 ?)} %% post + rcv with links
+\newcommand{\postSndP}[2]{#2!^{#1}} %%{#2 ! (#1)} %% assume the pair (thread id, program counter)
+\newcommand{\postRcvP}[2]{#2?^{#1}} %%{#2 ? (#1)} %% is represented by a unique id
+\newcommand{\postSndBuffP}[3]{#2^{#3} !^{#1}} %%{#2^{#3} ! (#1)}
+\newcommand{\postRcvBuffP}[3]{#2^{#3} ?^{#1}} %%{#2^{#3} ? (#1)}
+\newcommand{\postRead}[1]{\mathit{read}(#1)}
+\newcommand{\postWrite}[1]{\mathit{write}(#1)}
+\newcommand{\postReadP}[2]{r(#2)^{#1}} %%{\mathit{read}(#2,#1)}
+\newcommand{\postWriteP}[2]{w(#2)^{#1}} %%{\mathit{write}(#2,#1)}
+\newcommand{\initVar}[1]{\mathit{init}(#1)}
+\newcommand{\postClose}[1]{\mathit{close}(#1)}
+\newcommand{\postDefault}{\mathit{default}}
+\newcommand{\Default}{\mathit{default}}
+
+\newcommand{\lockE}[1]{l(#1)}
+\newcommand{\unlockE}[1]{u(#1)}
+\newcommand{\readE}[1]{r(#1)}
+\newcommand{\writeE}[1]{w(#1)}
+
+\newcommand{\readEE}[2]{r(#1)_{#2}}
+\newcommand{\writeEE}[2]{w(#1)_{#2}}
+\newcommand{\lockEE}[2]{l(#1)_{#2}}
+\newcommand{\unlockEE}[2]{u(#1)_{#2}}
+
+
+\newcommand{\preRead}[1]{\mathit{read}(#1)}
+\newcommand{\preWrite}[1]{\mathit{write}(#1)}
+
+\newcommand{\predRace}[3]{\mathit{race}(#1,#2,#3)} %% predictable race
+
+
+\newcommand{\extract}[2]{#1 \downarrow #2}
+\newcommand{\proj}[2]{\mathit{proj}_{\sharp #1}(#2)}
+\newcommand{\pos}[1]{\mathit{pos}(#1)}
+\newcommand{\posP}[2]{\mathit{pos}_{{\scriptstyle #1}}(#2)}
+\newcommand{\compTID}[1]{\mathit{thread}(#1)}
+\newcommand{\compTIDP}[2]{\mathit{thread}_{{\scriptstyle #1}}(#2)}
+\newcommand{\evtID}[1]{\mathit{ident}(#1)}
+\newcommand{\len}[1]{\mathit{len}(#1)}
+\newcommand{\perm}[1]{\mathit{perm}(#1)}
+\newcommand{\events}[1]{\mathit{events}(#1)}
+
+\newcommand{\equivT}[2]{#1 \sim #2}             %% equivalence relation among traces
+\newcommand{\equivS}[1]{#1 / \sim}     %% set of equivalence classes
+\newcommand{\equivC}[1]{\overline{#1}}          %% equivalence class
+
+
+\newcommand{\signalTrace}[1]{\mathit{signal}(#1)}
+\newcommand{\waitTrace}[1]{\mathit{wait}(#1)}
+
+\newcommand{\hash}[1]{{\mathem hash}(#1)}
+\newcommand{\instr}[2]{\mathit{instr}(#1) = #2} %%{\turns #1 \leadsto #2}
+\newcommand{\instrt}[1]{\mathit{instr}(#1)}
+\newcommand{\instrtT}[2]{\mathit{instr2}(#1, #2)}
+\newcommand{\retrieve}[1]{\mathit{retr}(#1)}
+
+\newcommand{\semB}[4]{(#1, #2) \turns #3 \Downarrow #4}
+\newcommand{\semP}[3]{#1 \xRightarrow{#2} #3}
+
+\newcommand{\hbPO}[2]{#1 <^{{\scriptscriptstyle P}} #2}
+\newcommand{\hbPOP}[3]{#2 <^{{\scriptscriptstyle P(#1)}} #3}
+\newcommand{\hbDep}[2]{#1 <^{\scriptscriptstyle D} #2}
+\newcommand{\hbDepP}[3]{#2 <^{\scriptscriptstyle D(#1)} #3}
+\newcommand{\hbSched}[2]{#1 <^{\scriptscriptstyle S} #2}
+\newcommand{\hbSchedP}[3]{#2 <^{\scriptscriptstyle S(#1)} #3}
+\newcommand{\hb}[2]{#1 <^{\scriptscriptstyle HB} #2}
+\newcommand{\hbP}[3]{#2 <^{\scriptscriptstyle HB(#1)} #3}
+\newcommand{\hbPP}[3]{#2 <^{\scriptscriptstyle HB'(#1)} #3}
+\newcommand{\hbConc}[3]{#2 \|^{{\scriptstyle HB(#1)}} #3}
+
+\newcommand{\replay}[3]{\semP{#1}{#2}{#3}}
+\newcommand{\postProc}[2]{#1 \Rightarrow #2}
+
+\newcommand{\R}[1]{{\cal R}(#1)}   %% trace reorderings
+\newcommand{\PR}[1]{{\cal P}(#1)}   %% predictable races
+
+\newcommand{\vcN}{V}                                  %% vector clocks
+\newcommand{\vcSet}{{\cal V}}                         %% set of vector clocks
+\newcommand{\writeVC}[1]{\mathit{Write}(#1)}
+\newcommand{\lastWriteVC}[1]{\mathit{LastWrite}(#1)}
+\newcommand{\sendVC}[1]{\mathit{Send}(#1)}
+\newcommand{\readVC}[1]{\mathit{Read}(#1)}
+\newcommand{\receiveVC}[1]{\mathit{Receive}(#1)}
+\newcommand{\bufferVC}[1]{\mathit{Buffer}(#1)}
+\newcommand{\threadVC}[1]{\mathit{Th}(#1)}
+\newcommand{\lockVC}[1]{\mathit{Lk}(#1)}
+\newcommand{\threadWriteDots}[2]{\mathit{Ds}(#1,#2)}
+\newcommand{\lastUnlockDots}[1]{\mathit{L}(#1)}
+\newcommand{\writeHist}[1]{\mathit{V}(#1)}
+\newcommand{\lastWriteDots}[1]{\mathit{LW}(#1)}
+\newcommand{\readDots}[1]{\mathit{R}(#1)}
+\newcommand{\writeDots}[1]{\mathit{W}(#1)}
+\newcommand{\threadDots}[2]{\mathit{D}(#1,#2)}
+\newcommand{\edges}{\mathit{E}}
+\newcommand{\gtEdge}{<}
+\newcommand{\hbRel}[2]{#1 \gtEdge #2}
+
+\newcommand{\rwT}[1]{T^{rw}_{#1}}
+\newcommand{\rwTx}{\rwT{x}}
+
+\newcommand{\hbRelCl}[3]{#2 <_{#1}^* #3}
+
+\newcommand{\races}{\mathit{races}}
+\newcommand{\dotRaces}{{\cal R}^D}
+\newcommand{\allRaces}{{\cal R}^T}
+
+\newcommand{\upHist}[3]{\mathit{update}(#1, #2, #3)}
+
+\newcommand{\emptyB}[1]{\bot^{#1}}
+\newcommand{\fullB}[1]{\top^{#1}}
+
+\newcommand{\vc}[1]{\vcN_{#1}}                        %% VC enumerations
+
+\newcommand{\selConcVC}[1]{\mathit{conc}(#1)}
+
+
+\newcommand{\assign}{:=}
+
+\newcommand{\sndEvt}[2]{#1 \sharp #2!}
+\newcommand{\rcvEvt}[2]{#1 \sharp #2?}
+%% Notation has changed, only record receivers thread id
+%% \newcommand{\rcvEvt}[3]{#1 \leftarrow #2 \sharp #3?}
+\newcommand{\readEvt}[2]{#1 \sharp \mathit{read}(#2)}
+\newcommand{\writeEvt}[2]{#1 \sharp \mathit{write}(#2)}
+\newcommand{\closeEvt}[2]{#1 \sharp \mathit{close}(#2)}
+\newcommand{\defaultEvt}[1]{#1 \sharp \mathit{default}}
+\newcommand{\initEvt}[2]{#1 \sharp \mathit{init}(#2)}
+
+\newcommand{\snd}[1]{#1 !}
+\newcommand{\rcv}[1]{#1 ?}
+\newcommand{\readR}[1]{\mathit{read}(#1)}
+\newcommand{\writeW}[1]{\mathit{write}(#1)}
+
+\newcommand{\dummyTID}{\infty}
+
+% Bar chart stuff
+\makeatletter
+\newdimen\legendxshift
+\newdimen\legendyshift
+\newcount\legendlines
+% distance of frame to legend lines
+\newcommand{\bclldist}{1mm}
+\newcommand{\bclegend}[3][10mm]{%
+	% initialize
+	\legendxshift=0pt\relax
+	\legendyshift=0pt\relax
+	\xdef\legendnodes{}%
+	% get width of longest text and number of lines
+	\foreach \lcolor/\ltext [count=\ll from 1] in {#3}%
+	{\global\legendlines\ll\pgftext{\setbox0\hbox{\bcfontstyle\ltext}\ifdim\wd0>\legendxshift\global\legendxshift\wd0\fi}}%
+	% calculate xshift for legend; \bcwidth: from bchart package; \bclldist: from node frame, inner sep=\bclldist (see below)
+	% \@tempdima: half width of bar; 0.72em: inner sep from text nodes with some manual adjustment
+	\@tempdima#1\@tempdima0.5\@tempdima
+	\pgftext{\bcfontstyle\global\legendxshift\dimexpr\bcwidth-\legendxshift-\bclldist-\@tempdima-0.72em}
+	% calculate yshift; 5mm: heigt of bar
+	\legendyshift\dimexpr5mm+#2\relax
+	\legendyshift\legendlines\legendyshift
+	% \bcpos-2.5mm: from bchart package; \bclldist: from node frame, inner sep=\bclldist (see below)
+	\global\legendyshift\dimexpr\bcpos-2.5mm+\bclldist+\legendyshift
+	% draw the legend
+	\begin{scope}[shift={(\legendxshift,\legendyshift)}]
+		\coordinate (lp) at (0,0);
+		\foreach \lcolor/\ltext [count=\ll from 1] in {#3}%
+		{
+			\node[anchor=north, minimum width=#1, minimum height=5mm,fill=\lcolor] (lb\ll) at (lp) {};
+			\node[anchor=west] (l\ll) at (lb\ll.east) {\bcfontstyle\ltext};
+			\coordinate (lp) at ($(lp)-(0,5mm+#2)$);
+			\xdef\legendnodes{\legendnodes (lb\ll)(l\ll)}
+		}
+		% draw the frame
+		\node[draw, inner sep=\bclldist,fit=\legendnodes] (frame) {};
+	\end{scope}
+}
+\makeatother
+
+\title{Set-Based Happens-Before}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+%--------------------------------------------------------
+%--------------------------------------------------------
+\section{Comments}
+
+Some idea, started quite a while ago. Instead of vector clocks use sets to represent the happens-before relation.
+We consider here the standard happens-before relation with write-read dependencies = SHB.
+
+Below, we sometimes refer to sets as ``dots''.
+
+The algorithm seems to work but needs more examples, clean up of the theory.
+
+%--------------------------------------------------------
+\subsection{Further comments}
+
+\ms{TODO:}
+$\threadDots{i}{x}\}$ becomes singleton. Shouldn't be the case. The write (read) to be added simply replaces
+the last added element in that thread.
+
+
+Algorithm~\ref{alg:dots-data-race}.
+
+$\threadDots{i}{x}\}$ represents the frontier of all concurrent reads/writes.
+
+$\lastWriteDots{x}$ used to be a vector clock
+against we synchronized the following read.
+Hence, we need to build (in case of write)
+$\lastWriteDots{x} = \{ \writeEE{x}{j} \} \bigcup_{z \not = x} \threadDots{i}{z}$.
+
+Main issue with this approach.
+If there are many different variables.
+
+Could go one step further.
+Only track selected variables and only a fixed number of elements in the frontier?
+
+Due to write-read dependencies will need to track at least a single write.
+Could impose a force-ordering like go-race.
+So each set $\lastWriteDots{x}$ has at most 5 elements (one write and four reads).
+
+Size of $\lastWriteDots{x}$ and $\lastUnlockDots{y}$ still may explodes.
+These sets approximate the union of $\threadDots{i}{z}\}$ for all $z$.
+
+
+BTW. Releasemerge aka unlockmerge would not overwrite but simply merge.
+
+
+%--------------------------------------------------------
+%--------------------------------------------------------
+\section{Introduction}
+
+
+Pro. No VC. So large number of threads no issues.
+Cons. Threads that deal with a large number of variables.
+
+
+%--------------------------------------------------------
+%--------------------------------------------------------
+\section{Events and Run-Time Traces}
+\label{sec:events-traces}
+
+
+
+\begin{definition}[Run-Time Traces and Events]
+\label{def:run-time-traces-events}
+\bda{lcll}
+  T & ::= & [] \mid \thread{i}{e} : T   & \mbox{Trace}
+  \\ e,f,g & ::= &  \readEE{x}{j}
+           \mid \writeEE{x}{j}
+           \mid \lockEE{y}{j}
+           \mid \unlockEE{y}{j}
+
+           & \mbox{Events}
+\eda
+\end{definition}
+
+A trace $T$ is a list of events. We adopt Haskell notation for lists
+and assume that the list of objects $[o_1,\dots,o_n]$ is a shorthand
+for $o_1:\dots:o_n:[]$. We write $\pp$ to denote the concatentation operator among lists.
+For each event $e$, we record the tread id number $j$ in which the event took place,
+written $\thread{i}{e}$.
+We often omit the thread id for brevity.
+
+For trace $T$, we assume some helper functions to access the thread id and position of $e$.
+We define $\compTIDP{T}{e} = j$ if $T=T_1 \pp\ [\thread{j}{e}] \pp\ T_2$ for some traces $T_1, T_2$.
+We define $\posP{T}{e} = n$ if $T=\thread{i_1}{e_1}: \dots : \thread{i_{n-1}}{e_{n-1}} : \thread{i}{e} : T'$
+for some thread id annotated events $\thread{i_k}{e_k}$ and trace $T'$.
+If the trace $T$ is fixed, we write $\compTID{e}$ and $\pos{e}$ for short.
+
+For trace $T$, we define $\events{T} = \{ e \mid \exists T_1,T_2,j. T = T_1 \pp [\thread{j}{e}] \pp T_2 \}$
+to be the set of events in $T$.
+We write $e \in T$ if $e \in \events{T}$.
+
+For trace $T$, we define $\proj{i}{T} = T'$ the projection of $T$ onto thread $j$
+where (1) for each $e \in T$ where $\compTIDP{T}{e} = i$ we have that $e \in T'$, and
+(2) for each $e, f \in T'$ where $\posP{T'}{e} < \posP{T'}{f}$ we have that $\posP{T}{e} < \posP{T}{f}$.
+That is, the projection onto a thread comprises of all events in that thread
+and the program order remains the same.
+
+We write $\readEE{x}{j}$ and $\writeEE{x}{j}$
+to denote a read and write event on shared variable $x$
+where $j$ is some distinct number.
+We write $\lockEE{y}{j}$ and $\unlockEE{y}{j}$
+to denote a lock and unlock event on mutex $y$
+where $j$ is some distinct number.
+
+\begin{definition}[Proper Locking Order]
+  TODO
+
+  unlock for each lock etc
+
+  might be easiest to formalize via trace replay
+
+\end{definition}
+
+
+\begin{definition}[Happens-Before]
+\label{def:happens-before}
+  Let $T$ be a well-formed trace.
+  We define a relation $\hbPOP{T}{}{}$ among trace events
+  as the smallest partial order such that the following holds:
+  \begin{description}
+  \item[Program order:]
+    Let $e, f \in T$. Then, $\hbPOP{T}{e}{f}$ iff
+    $\compTID{e} = \compTID{f}$ and $\pos{e} < \pos{f}$.
+  \item[Write-read:]
+    Let $\readEE{x}{j}, \writeEE{x}{k} \in T$.
+    Then, $\hbPOP{T}{\writeEE{x}{j}}{\readEE{x}{k}}$ iff
+    $\pos{\writeEE{x}{j}} < \pos{\readEE{x}{k}}$ and
+    for all $e\in T$ where $\pos{\writeEE{x}{j}} < \pos{e}$ and $\pos{e} < \pos{\readEE{x}{k}}$
+    we find that $e$ is not a write event on $x$.
+  \item[Unlock-lock:]
+    Let $\unlockEE{y}{j}, \lockEE{y}{k} \in T$. Then, $\hbPOP{T}{\unlockEE{y}{j}}{\lockEE{y}{k}}$ iff
+    $\pos{\unlockEE{y}{j}} < \pos{\lockEE{y}{k}}$ where
+    $\compTID{\unlockEE{y}{j}} \not= \compTID{\lockEE{y}{k}}$ and
+    for all $e \in T$ where $\pos{\unlockEE{y}{j}} < \pos{e}$, $\pos{e} < \pos{\lockEE{y}{k}}$
+    and $\compTID{\unlockEE{y}{j}} \not= \compTID{e}$ we find that $e$
+    is not a lock event on $y$.
+  \end{description}
+  %
+  We refer to $\hbPOP{T}{}{}$ as the \emph{happens-before} relation.
+
+  We say two events $e, f \in T$ are \emph{concurrent} to each other
+  if neither $\hbPOP{T}{e}{f}$, nor $\hbPOP{T}{f}{e}$ holds.
+\end{definition}
+
+
+\begin{definition}[Read/Write Events]
+  Let $T$ be a well-formed trace.
+  We define $\rwTx$ as the set of all read/write
+  events in $T$ on some variable $x$.
+
+  Let $M \subseteq T$ be a subset of events in $T$.
+  Then, we define $\extract{M}{\rwTx} = M \cap \rwTx$.
+\end{definition}
+
+Based on our construction of the happens-before relation derived
+from the trace, we can state that a later in the trace appearing
+read/write event can never happen before an earlier in the trace appearing
+read/write event on the same variable.
+
+\ms{fixme notation: $e$ vs $e_x$, maybe just stick to $e$}
+
+
+\begin{lemma}
+\label{le:hapens-before-vs-trace-position}
+  Let $T$ be a well-formed trace.
+  Let $e_x,f_f \in \rwTx$ such that $\pos{e_x} > \pos{f_x}$.
+  Then, $\neg (\hbPOP{T}{f_x}{e_x})$.
+\end{lemma}
+\begin{proof}
+Follows by construction. See Definition~\ref{def:happens-before}.
+\qed
+\end{proof}
+
+
+\begin{definition}[Data Races]
+  \label{def:data-race}
+  Let $T$ be a well-formed trace.
+  Let $x$ be some variable and $e_x, f_x \in \rwTx$ be
+  two read/write events on $x$.
+
+  We say that $(e_x, f_x)$ are in a \emph{write-write data race}
+  if $e_x$ and $f_x$ are both write events
+      and $e_x$ and $f_x$ are concurrent to each other.
+
+   We say that $(e_x, f_x)$ are in a \emph{write-read data race}
+   if $e_x$ is a write event and $f_x$ is a read event
+   where either (1) $e_x$ and $f_x$ are concurrent to each other, or
+   (2) $\hbPOP{T}{e_x}{f_x}$ and
+   $\not\exists e' \in \rwTx. \hbPOP{T}{e_x}{e'} \wedge \hbPOP{T}{e'}{f_x}$.
+
+
+   We denote by $\allRaces$ the set of all write-write and write-read data races
+   for trace $T$.
+\end{definition}
+
+The second case of a write-read data race covers
+a write-read dependency that is not protected by a mutex.
+
+
+%--------------------------------------------------------
+%--------------------------------------------------------
+\section{Dots Data Race Checker}
+
+
+\begin{algorithm}
+\caption{Dots Data Race Checker}
+\label{alg:dots-data-race}
+\begin{algorithmic}[1]
+\Procedure{lock}{$i,j,y$}
+\State $\forall x. \threadDots{i}{x} = \threadDots{i}{x} \cup \{  g_x \mid g_x \in \rwTx \wedge g_x \in \lastUnlockDots{y} \} $
+\EndProcedure
+\end{algorithmic}
+
+\begin{algorithmic}[1]
+\Procedure{unlock}{$i,j,y$}
+\State $\lastUnlockDots{y} = \bigcup_x \threadDots{i}{x}$
+\EndProcedure
+\end{algorithmic}
+
+\begin{algorithmic}[1]
+\Procedure{write}{$i,j,x$}
+\State $\races = \races \cup \{ (e, \writeEE{x}{j}) \mid e \in \writeDots{x} \wedge e \not\in \threadDots{i}{x} \}$
+\State $\races = \races \cup \{ (e, \writeEE{x}{j}) \mid e \in \readDots{x} \wedge e \not\in \threadDots{i}{x} \}$
+\State $\edges = \edges \cup \{ \hbRel{e}{\writeEE{x}{j}} \mid e \in \threadDots{i}{x} \}$
+\State $\writeDots{x} = (\writeDots{x} - \threadDots{i}{x}) \cup \{ \writeEE{x}{j} \}$
+\State $\readDots{x} = (\readDots{x} - \threadDots{i}{x})$
+\State $\threadDots{i}{x} = \{ \writeEE{x}{j} \}$
+\State $\lastWriteDots{x} = \{ \writeEE{x}{j} \} \bigcup_{z \not = x} \threadDots{i}{z}$
+\EndProcedure
+\end{algorithmic}
+
+\begin{algorithmic}[1]
+\Procedure{read}{$i,j,x$}
+\State $\races = \races \cup \{ (e, \readEE{x}{j}) \mid e \in \lastWriteDots{x} \wedge   e \not\in \threadDots{i}{x} \}$
+\State $\races = \races \cup \{ (e, \readEE{x}{j}) \mid e \in \writeDots{x} \wedge e \not\in \extract{\lastWriteDots{x}}{\rwTx} \wedge e \not\in \threadDots{i}{x} \}$
+\State $\edges = \edges \cup \{ \hbRel{e}{\readEE{x}{j}} \mid e \in \threadDots{i}{x} \}
+               \cup \{ \hbRel{e}{\readEE{x}{j}} \mid e \in \extract{\lastWriteDots{x}}{\rwTx} \wedge e \not\in \threadDots{i}{x}\}$
+\State $\writeDots{x} = \writeDots{x} - (\extract{\lastWriteDots{x}}{\rwTx} \cup \threadDots{i}{x})$
+\State $\readDots{x} = (\readDots{x} - \threadDots{i}{x}) \cup \{ \readEE{x}{j} \}$
+\State $\threadDots{i}{x} = \{ \readEE{x}{j} \}$
+\State $\forall z\not= x. \threadDots{i}{z} = \threadDots{i}{z} \cup \{ g_z \mid g_z \in \rwT{z} \wedge g_z \in \lastWriteDots{x} \}$
+\EndProcedure
+\end{algorithmic}
+
+\end{algorithm}
+
+
+
+
+Init:
+\bda{lcl}
+\races & = & \{ \}
+\\
+\edges & = & \{ \}
+\\
+\readDots{x} & = & \{ \}
+\\
+\writeDots{x} & = & \{ \}
+\\
+\lastWriteDots{x} & = & \{ \}
+\\
+\threadDots{i}{x} & = & \{ \}
+\\
+\lastUnlockDots{x} & = & \{ \}
+\eda
+
+
+\begin{definition}[Transitive Closure]
+  Let $\edges$ be the set of edge constraints.
+  Let $e,f \in \edges$.
+  We define $\hbRelCl{E}{e}{f}$ iff
+  $\exists e_1,\dots,e_n \in E. e < e_1 < \dots < e_n < f$.
+\end{definition}
+
+We define the notion of a frontier as set of read/write events
+that happen before some other read/write event $e_x$
+where all reads/writes share the same variable $x$.
+The frontier must be complete in the sense that
+there shall not be any other read/write events on that variable
+in between. Further, the frontier is maximal in the sense
+that any read/write on $x$ that immediately happens before $e_x$
+is part of the frontier.
+
+\begin{definition}[Complete Frontier Property]
+\label{def:complete-frontier}
+  Let $T$ be a well-formed trace where $\rwTx$ is the set of all read/write
+  events in $T$ on some variable $x$.
+  Let $M_x$ be a set of read/write events for some variable $x$
+  and $e_x$ be a read/write event on $x$.
+  We say that $M_x$ is a \emph{complete frontier} w.r.t.~$e_x$ iff
+  the following holds:
+\begin{enumerate}
+\item $\forall f \in M_x. \hbPOP{T}{f}{e_x}$.
+\item $\forall f \in M_x. \not \exists e' \in \rwTx.
+           \hbPOP{T}{f}{e'} \wedge  \hbPOP{T}{e'}{e_x}$.
+\item $\forall f \in \rwTx.  (\hbPOP{T}{f}{e_x} \wedge \not \exists e' \in \rwTx.
+           \hbPOP{T}{f}{e'} \wedge  \hbPOP{T}{e'}{e_x}) \implies f \in M_x$.
+\end{enumerate}
+\end{definition}
+
+All events in a complete frontier are incomparable, i.e.~concurrent to each other,
+as stated in the following result.
+
+\begin{lemma}[Complete Frontiers are Incomparable]
+  Let $T$ be a well-formed trace where $\rwTx$ is the set of all read/write
+  events in $T$ on some variable $x$.
+  Let $M_x$ be a set of read/write events for some variable $x$
+  and $e_x$ be a read/write event on $x$.
+  If $M_x$ is a complete frontier w.r.t.~$e_x$
+  then   $\forall f, g \in M_x. \neg (\hbPOP{T}{f}{g})  \wedge \neg (\hbPOP{T}{g}{f})$.
+\end{lemma}
+\begin{proof}
+  We assume the contrary.
+  Suppose $\hbPOP{T}{f}{g}$. By the first Complete Frontier Property, $\hbPOP{T}{g}{e_x}$.
+  However, this contradicts the second Complete Frontier Property
+  and therefore $f \not\in M_x$.
+  Similar arguments apply to the other case.
+  \qed
+\end{proof}
+
+Next, we will show that sets $\threadDots{i}{x}$ and $\lastWriteDots{x}$ calculated
+by Algorithm~\ref{alg:dots-data-race} represent complete frontiers
+w.r.t.~the next upcoming read/write event $e_x$ for that variable and thread.
+
+\begin{lemma}[Thread Dots are Complete Frontiers]
+  \label{le:frontier}
+Let $T$ be a well-formed trace, $x$ be a variable and $i$ be a thread id.
+Let $e_x \in \rwTx$ be the event about to be processed by Algorithm~\ref{alg:dots-data-race}.
+Then, the following holds:
+\begin{enumerate}
+  \item
+  For $e_x = \writeEE{x}{j}$, the set $\threadDots{i}{x}$ is complete w.r.t.~$e_x$.
+\item
+  For $e_x = \readEE{x}{j}$,
+  the set $\threadDots{i}{x} \cup \extract{\lastWriteDots{x}}{\rwTx}$ is complete w.r.t.~$e_x$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+  We prove the statements by induction over the steps of
+  Algorithm~\ref{alg:dots-data-race}.
+  This requires to generalize the statement as follows.
+
+  \begin{itemize}
+  \item For any position $n$ in $T$, and
+  \item for each combination of $(i,x)$ where $i$ is a thread id and $x$ is a variable, and
+  \item for each $e_x \in \rwTx$ where $\pos{e_x} > n$ where the sets $\threadDots{i}{x}$
+    and $\lastWriteDots{x}$ will not be updated by the steps after $n$ till we reach $e_x$,
+  \item the following properties hold:
+    \begin{itemize}
+     \item If $e_x$ is a write event on $x$, we have that $\threadDots{i}{x}$ is complete w.r.t.~$e_x$.
+     \item If $e_x$ is a read event on $x$, we have that  $\threadDots{i}{x} \cup \extract{\lastWriteDots{x}}{\rwTx}$ is complete w.r.t.~$e_x$.
+    \end{itemize}
+  \end{itemize}
+
+ We consider a pair $(i,x)$ and the $n$th step in the algorithm.
+  \begin{enumerate}
+  \item
+  We start with $e_x = \writeEE{x}{j}$.
+  We consider the prior steps of Algorithm~\ref{alg:dots-data-race}
+  that affect $\threadDots{i}{x}$.
+
+  \textbf{Case lock(l,j1,y):}
+  For $l\not=i$, the set $\threadDots{i}{x}$ is not updated by this step.
+  So, we can apply the I.H. on a prior step of the algorithm to show that the property holds.
+  Consider the case that $l=i$.
+  We need to show that
+  $\threadDots{i}{x} \cup \{ g_x \mid g_x \in \rwTx \wedge g_x \in \lastUnlockDots{y} \}$
+  is complete w.r.t. $\writeEE{x}{j}$.
+
+  We take a more detailed look at the prior computation steps.
+  W.l.o.g. we assume that the following steps have been executed.
+
+  \begin{tabular}{l|l}
+    Thread $k$   & Thread $i$
+    \\
+    \hline
+    $\threadDots{k}{x}' = \dots$     & $\threadDots{i}{x}' = \dots$
+    \\ \textbf{unlock(k,j2,y)} &
+    \\ $\lastUnlockDots{y} = \threadDots{k}{x}' \cup \dots$
+    \\                         & \textbf{lock(i,j1,y)}
+    \\                         & $\threadDots{i}{x} = \threadDots{i}{x}' \cup \threadDots{k}{x}'$
+    \\                         & \textbf{write(i,j,x)}
+
+  \end{tabular}
+  %
+
+  Prior to the write event on $x$ in thread $i$ we find a lock event.
+  Instead of events, we write down the corresponding procedure calls.
+  Calls happen in sequence from top to bottom where the calls connected
+  to specific threads are written in their own column.
+  As we assume that programs follow a proper lock-unlock order, we can assume that there is a furthr prior unlock event
+  in some thread $k$.
+  We assume $k \not= i$.
+  Hence, calculations of $\threadDots{k}{x}'$ and $\threadDots{i}{x}'$
+  are independent of each other where
+  set $\threadDots{k}{x}'$ must be calculated prior to the unlock
+  and set $\threadDots{i}{x}'$ prior to lock.
+  We use `'' (prime) to indicate earlier versions of the set of thread dots.
+  Under the given assumptions
+  $\{ g_x \mid g_x \in \rwTx \wedge g_x \in \lastUnlockDots{y} \} = \threadDots{k}{x}$.
+
+  If step \textbf{unlock(k,j2,y)} is replaced by \textbf{write(i,j,x)},
+  we can conclude by the I.H.~that $\threadDots{k}{x}'$ is complete
+  w.r.t.~$\writeEE{x}{j}$ (P1).
+  Similarly, if step \textbf{lock(i,j1,y)} is replaced by \textbf{write(i,j,x)},
+  $\threadDots{i}{x}'$ is complete w.r.t.~$\writeEE{x}{j}$ (P2).
+  As the unlock event happens before the lock event,
+  we conclude that $\threadDots{k}{x}' \cup \threadDots{i}{x}'$
+  is complete w.r.t.~$\writeEE{x}{j}$.
+  Otherwise, we can derive a contradiction
+  to (P1) and (P2).
+
+  If $k = i$, we can conclude that $\threadDots{k}{x} = \threadDots{i}{x}$
+  and by similar reasoning we find that
+  $\threadDots{k}{x}$ is complete w.r.t.~$\writeEE{x}{j}$.
+
+  \textbf{Case write(l,j2,z):}
+  If either $l \not=i$ or $z \not= x$, the set $\threadDots{i}{x}$ is not updated.
+  So, we can apply the I.H. on a prior step of the algorithm to show that the property holds.
+  Otherwise, for $l=i$ and $z=x$ we have that $\threadDots{i}{x} = \{ \writeEE{x}{j2} \}$.
+  By assumption there are no other events in between the current event and the write event
+  $\writeEE{x}{j}$ that affect $\threadDots{i}{x}$.
+  Hence, based on the program order $\{ \writeEE{x}{j2} \}$
+  is complete w.r.t.~$\writeEE{x}{j}$.
+
+
+  \textbf{Case read(l,j2,z):}
+  For $l \not= i$, the set $\threadDots{i}{x}$ is not updated.
+  So, we can apply the I.H. on a prior step of the algorithm to show that the property holds.
+  Consider the case of $l=i$ and $x=z$.
+  Then, $\threadDots{i}{x} = \{ \readEE{x}{j2} \}$.
+  The argument proceeds as in case of write before.
+  By assumption there are no other events in between the current event and the write event
+  $\writeEE{x}{j}$ that affect $\threadDots{i}{x}$.
+  Hence, based on the program order $\{ \readEE{x}{j2} \}$
+  is complete w.r.t.~$\writeEE{x}{j}$.
+
+  What remains is to consider the case of $l=i$ and $x \not= z$.
+  The read event at position $n$ affects $\threadDots{i}{x}$.
+  The situation is as follows.
+
+  \begin{tabular}{l|l}
+    Thread $k$ & Thread $i$
+    \\
+    \hline
+    $\threadDots{k}{x}' = \dots$     & $\threadDots{i}{x}' = \dots$
+    \\ \textbf{write(k,j1,z)} &
+    \\ $\lastWriteDots{z} = \threadDots{k}{x}' \cup \dots$ &
+    \\ & \textbf{read(i,j2,z)}
+    \\ &
+    $\threadDots{i}{x} = \threadDots{i}{x}' \cup
+      \underbrace{\threadDots{k}{x}'}_{\extract{\lastWriteDots{z}}{\rwTx}}$
+    \\ & \textbf{write(i,j,x)}
+
+  \end{tabular}
+
+  The read updates $\threadDots{i}{x}$ due to a write-read dependency.
+  We only consider the updates affecting variable $x$.
+  The prior write on $z$ happens in some thread $k$.
+  Thread $k$ updates $\threadDots{i}{x}'$
+  and the set $\lastWriteDots{z}$ collects this set
+  in the procedure call \textbf{write(k,j1,z)}.
+    We use `'' (prime) to indicate earlier versions of the set of thread dots.
+  In the call \textbf{read(i,j2,z)} we add this set to $\threadDots{i}{x}$
+  (shown in the above diagram).
+
+  If step \textbf{write(k,j1,z)} is replaced by \textbf{write(i,j,x)}
+  we can conclude by the I.H.~that
+  $\threadDots{k}{x}'$ is complete  w.r.t.~$\writeEE{x}{j}$ (P1).
+  Similarily, if step \textbf{read(i,j2,z)} is replaced  by \textbf{write(i,j,x)}
+  we can conclude by the I.H.~that
+  $\threadDots{i}{x}'$ is complete  w.r.t.~$\writeEE{x}{j}$ (P1).
+
+  For our situation, we can assume that
+  $\threadDots{i}{x} = \threadDots{i}{x}' \cup \threadDots{k}{x}'$.
+  Then, we can conclude that $\threadDots{i}{x}$
+  is complete w.r.t.~$\writeEE{x}{j}$.
+    Otherwise, we can derive a contradiction
+  to (P1) and (P2).
+
+
+  \item
+  We consider $e_x = \readEE{x}{j}$
+  and proceed as for the write case.
+
+  \textbf{Case lock(l,j1,y):}
+  We need to show that
+  $\threadDots{i}{x} \cup \{ g_x \mid g_x \in \rwTx \wedge g_x \in \lastUnlockDots{y} \} \cup \extract{\lastWriteDots{x}}{\rwTx}$
+  is complete w.r.t.~$\readEE{x}{j}$.
+  That is, we also need to take account of the last write event
+  preceeding $\readEE{x}{j}$.
+  For the case $l \not= i$ the reasoning as before.
+  So, we assume $l=i$.
+
+  The schematic representation of computation steps is as follows.
+
+  \begin{tabular}{l|l|l}
+    Thread $k$ & Thread $i$ & Thread $m$
+    \\
+    \hline
+    $\threadDots{k}{x}' = \dots$     & $\threadDots{i}{x}' = \dots$
+    \\                              &               & $\lastWriteDots{x} = \dots$
+    \\ \textbf{unlock(k,j2,y)} &
+    \\ $\lastUnlockDots{y} = \threadDots{k}{x}' \cup \dots$ &&
+    \\                         & \textbf{lock(i,j1,y)}
+    \\                 & $\threadDots{i}{x} = \threadDots{i}{x}' \cup \threadDots{k}{x}'$
+    \\                         & \textbf{read(i,j,x)}
+  \end{tabular}
+
+  In addition, we find a last write event in some thread $l$.
+  We assume that $k \not= m$ and $i \not= m$.
+  Otherwise, the last write would be part of either
+  $\threadDots{k}{x}$ or $\threadDots{i}{x}$
+  and then we can apply the exact same reasoning steps
+  as above (write event case \textbf{lock(i,j1,y)}).
+
+  For $k \not= m$ and $i \not= m$, the earlier
+  reasoning steps (for writes) need to be slightly adjusted.
+  If step \textbf{unlock(k,j2,y)} is replaced by \textbf{read(i,j,x)}
+  we need to take care of the last write relative to that read.
+  Either moving the read leaves the last write unchanged
+  and therefore by the I.H.~$\threadDots{i}{x}' \cup \extract{\lastWriteDots{x}}{\rwTx}$
+  is complete w.r.t.~$\readEE{x}{j}$ (P1a).
+  or there is an earlier last write
+  and by the I.H.~$\threadDots{i}{x} \cup \extract{\lastWriteDots{x}'}{\rwTx}$
+  is complete w.r.t.~$\readEE{x}{j}$ (P1b).
+  We write $\lastWriteDots{x}'$ to denote that earlier last write.
+
+  Similar observations apply if step \textbf{lock(i,j1,y)}
+  is replaced by \textbf{read(i,j,x)}.
+  We omit a detailed descripton of the resulting properties (P2a)
+  and (P2b).
+
+  For $\readEE{x}{j}$ at its original position in the trace,
+  only the immediate proceeding last write recorded in
+  $\lastWriteDots{x}$ matters.
+  Hence, by assuming the contrary and deriving contradictions
+  to properties (P1a), (P1b), (P2a) and (P2b),
+  we can show that $\threadDots{k}{x}' \cup \threadDots{i}{x}' \cup \extract{\lastWriteDots{x}}{\rwTx}$
+  is complete w.r.t.~$\writeEE{x}{j}$.
+
+  \textbf{Case write(l,j2,z):}
+  If $l=i$ and $z=x$, the property holds immediately due to the program order.
+
+  If $l\not= i$ and $z=x$, then the property holds again immediately
+  due to the programm order and the fact that \textbf{write(l,j,x)}
+  is the last write relative to $\readEE{x}{j}$.
+
+  Consider the case of $l=i$ and $x \not= z$.
+  As we assume that the sets $\threadDots{i}{x}$ and $\lastWriteDots{x}$
+  are not updated by the sequence of events
+  in between \textbf{write(i,j2,z)} and $\readEE{x}{j}$,
+  the property must hold again.
+  The same applies for the case of $l\not= i$ and $x \not= z$.
+
+
+  \textbf{Case read(l,j2,z):}
+  For $l \not= i$, the sets $\threadDots{i}{x}$ and $\lastWriteDots{x}$
+  are not updated.
+  So, we consider $l=i$.
+  For $x=z$, the property holds immediately.
+
+  What remains is to consider the case of $l=i$ and $x \not= z$.
+  The situation is as follows.
+
+    \begin{tabular}{l|l|l}
+    Thread $k$ & Thread $i$ & Thread $m$
+    \\
+    \hline
+    $\threadDots{k}{x}' = \dots$     & $\threadDots{i}{x}' = \dots$
+    & $\threadDots{m}{x}' = \dots$
+    \\ & & \textbf{write(m,j3,x)}
+    \\ & & $\lastWriteDots{x} = \{ \writeEE{x}{j3}, \dots \}$
+    \\ \textbf{write(k,j1,z)} &&
+    \\ $\lastWriteDots{z} = \threadDots{k}{x}' \cup \dots$ &&
+    \\ & \textbf{read(i,j2,z)}
+    \\ &
+    $\threadDots{i}{x} = \threadDots{i}{x}' \cup
+      \underbrace{\threadDots{k}{x}'}_{\extract{\lastWriteDots{z}}{\rwTx}}$
+    \\ & \textbf{read(i,j,x)}
+
+  \end{tabular}
+
+    We assume that there is a write-read dependency for both reads.
+    We only consider the updates affecting variable $x$.
+    The prior write on $z$ happens in some thread $k$
+    and the prior write on $x$ happens in some thread $m$.
+    The relative order among this writes does not matter.
+    We need to verify that
+    $\threadDots{k}{x}' \cup \threadDots{i}{x}' \cup \{ \writeEE{x}{j3} \}$
+    is complete w.r.t.~$\readEE{x}{j}$.
+
+    By applying similar reasoning steps as for the case $e_x = \writeEE{x}{j}$
+    (assuming the contrary) this property can be verfied.
+\end{enumerate}
+%
+\qed
+\end{proof}
+
+\begin{lemma}[Edge Constraints yield Happens-Before]
+  \label{le:edges-vs-happens-before}
+  Let $T$ be a well-formed trace.
+  Let $\edges$ be the set of edge constraints
+  computed in Algorithm~\ref{alg:dots-data-race} by processing~$T$.
+  Then, for any $e,f \in \rwTx$ we have that
+  $\hbRelCl{E}{e}{f}$ iff $\hbPOP{T}{e}{f}$.
+\end{lemma}
+\begin{proof}
+  We prove both statements simultaneously by induction over the trace
+  considerig the various cases of Algorithm~\ref{alg:dots-data-race}.
+  The interesting cases are processing of reads and writes.
+  We start with write.
+
+  \textbf{Case write(i,x):}
+  For the direction from left to right,
+  we consider the newly added edge constraints
+  $\{ \hbRel{e}{\writeEE{x}{j}} \mid e \in \threadDots{i}{x} \}$.
+  By Lemma~\ref{le:frontier}, $\threadDots{i}{x}$
+  is a complete frontier.
+  Hence, $\hbRel{e}{\writeEE{x}{j}}$
+  implies that $\hbPOP{T}{e}{\writeEE{x}{j}}$.
+
+  Consider the direction from right to left.
+  Suppose $\hbPOP{T}{f}{\writeEE{x}{j}}$ (A1).
+  We distinguish among two subcases.
+  Either (1) inbetween $f$ and $\writeEE{x}{j}$
+  there are no other read/write events happening on $x$, or (2) there are some.
+
+  \textbf{Subcase (1):}
+  Suppose $\not\exists f' \in \rwTx. \hbPOP{T}{f}{f'} \wedge \hbPOP{T}{f'}{\writeEE{x}{j}}$.
+  Based on Lemma~\ref{le:frontier}
+  we find that $f \in \threadDots{i}{x}$.
+  Hence, the edge constraint among $f$ and $\writeEE{x}{j}$
+  is added and we find that $\hbRelCl{E}{f}{\writeEE{x}{j}}$.
+
+  \textbf{Subcase (2):}
+  We consider the case that there are other reads/writes on $x$.
+  We pick such an event $e \in \rwTx$ such that
+  $\hbPOP{T}{f}{e} \wedge \hbPOP{T}{e}{\writeEE{x}{j}}$
+  where $\not\exists f' \in \rwTx. \hbPOP{T}{e}{f'} \wedge \hbPOP{T}{f'}{\writeEE{x}{j}}$.
+  By similar reasoning as in subcase (1) we find that
+  $\hbRelCl{E}{e}{\writeEE{x}{j}}$.
+  By the I.H. applied on $\hbPOP{T}{f}{e}$ we find that
+  $\hbRelCl{E}{f}{e}$. Hence,
+  $\hbRelCl{E}{f}{\writeEE{x}{j}}$ and we are done for the write case.
+
+  \textbf{Case read(i,x):}
+  We consider the read case where we start with the direction from left to right.
+  Consider newly added edge constraints
+  $\{ \hbRel{e}{\readEE{x}{j}} \mid e \in \threadDots{i}{x} \}$ and
+  $\{ \hbRel{e}{\readEE{x}{j}} \mid e \in \extract{\lastWriteDots{x}}{\rwTx} \wedge e \not\in \threadDots{i}{x}\}$.
+  By Lemma~\ref{le:frontier}, $\threadDots{i}{x} \cup \extract{\lastWriteDots{x}}{\rwTx}$
+  is a complete frontier.
+  Hence, for both cases we find that $\hbPOP{T}{e}{\readEE{x}{j}}$.
+
+  Consider the direction from right to left.
+  Suppose $\hbPOP{T}{f}{\readEE{x}{j}}$. As in case of write,
+  we distinguish among two subcases.
+
+  \textbf{Subcase (1):}
+  Suppose $\not\exists f' \in \rwTx. \hbPOP{T}{f}{f'} \wedge \hbPOP{T}{f'}{\readEE{x}{j}}$.
+  Based on Lemma~\ref{le:frontier}
+  we find that $f \in \threadDots{i}{x} \cup \lastWriteDots{x}$.
+  Hence, the edge constraint among $f$ and $\readEE{x}{j}$ is added
+  and we find that $\hbRelCl{E}{f}{\readEE{x}{j}}$.
+
+  \textbf{Subcase (2):}
+  This subcase follows a similar pattern as subcase (2) for writes.
+  Application of the I.H. and reduction to the subcase (1).
+  We omit the details.
+  \qed
+\end{proof}
+
+
+\begin{lemma}
+  \label{le:helper}
+
+  $f_x < e_x, e_x \in \threadDots{k}{x}, f_x \in \threadDots{l}{x}$.
+  Then, $f_x \in \threadDots{k}{x}$.
+\end{lemma}
+
+
+\ms{should subsume the below}
+\begin{lemma}[Concurrent Read and Write Dots II]
+  Let $T$ be a well-formed trace and $x$ be a variable.
+  After each step of Algorithm~\ref{alg:dots-data-race}
+  we have that
+  \begin{enumerate}
+    \item $\writeDots{x} \cup \readDots{x} \subseteq \bigcup_i \threadDots{i}{x}$, and
+    \item for each two distinct events
+          $e_x, f_x \in \writeDots{x} \cup \readDots{x}$
+          we have that $e_x$ and $f_x$ are concurrent to each other, and
+    \item $\writeDots{x} \cup \readDots{x}$ is the largest
+      subset of $\bigcup_i \threadDots{i}{x}$ with the above property.
+   \end{enumerate}
+\end{lemma}
+\begin{proof}
+  We verify the three properties of the statement
+  by induction over the number of steps
+  of Algorithm~\ref{alg:dots-data-race}.
+
+  \textbf{Case write(k,j,z):}
+  For $z \not= x$ nothings needs to be done as none of the sets
+  mentioned in the statement are updated.
+
+  Consider $z=x$. After the updates, the first property
+  $\writeDots{x} \cup \readDots{x} \subseteq \bigcup_i \threadDots{i}{x}$
+  is maintained.
+
+  For the second property, we need to show that
+  for each $f_x \in (\writeDots{x} \cup \readDots{x}) - \threadDots{k}{x}$,
+  $f_x$ and $\writeEE{x}{j}$ are concurrent to each other.
+  Suppose the contrary.
+
+  If $\hbPOP{T}{f_x}{\writeEE{x}{j}}$ then due to the Complete Frontier Property
+  either $f_x \in \threadDots{k}{x}$ or $f_x$ happens before some
+  event in $\threadDots{k}{x}$.
+  For the second case, via Lemma~\ref{le:helper},
+  we conclude that $f_x \in \threadDots{k}{x}$.
+  This contradicts our assumption.
+
+  If $\hbPOP{T}{\writeEE{x}{j}}{f_x}$ then because $\writeEE{x}{j}$
+  happens before $\threadDots{k}{x}$, $f_x$ after
+  all events in $\threadDots{k}{x}$.
+  This would imply that none of the events in $\threadDots{k}{x}$
+  have been in $\writeDots{x} \cup \readDots{x}$.
+  This is impossible as at least one event from
+  $\threadDots{k}{x}$ must have appeared in $\writeDots{x} \cup \readDots{x}$.
+  \ms{check}
+
+  \textbf{Case write(k,j,z):}
+  For $z=x$, similar reasoning as above. We simply need to take care of
+  writes due to write-read dependencies.
+
+  For $z \not= x$, the set $\writeDots{z} \cup \readDots{z}$ is not updated.
+  Only the thread dots are updated.
+  However, as we know that $\lastWriteDots{x} \subseteq \bigcup_i \threadDots{x}$
+  the sum events to consider remains the same.
+  Hence, the statement still holds.
+
+  \textbf{Case lock(k,j,y):}
+  Again, the set $\writeDots{x} \cup \readDots{x}$ is not updated.
+  Only the thread dots are updated.
+  We can again argue that the sume of events $\bigcup_i \threadDots{x}$
+  (after the update) remains the same.
+  Hence, the statement still holds.
+\qed
+\end{proof}
+
+
+\begin{lemma}[Concurrent Read and Write Dots]
+\label{ex:reads-writes-concurrent}
+  Let $T$ be a well-formed trace and $x$ be a variable.
+  After each step of Algorithm~\ref{alg:dots-data-race}
+  we have that events in $\writeDots{x} \cup \readDots{x}$
+  are concurrent to each other.
+\end{lemma}
+\begin{proof}
+  For each variable $x$ and each step in Algorithm~\ref{alg:dots-data-race}
+  we need to verify that for any
+  two distinct events $e_x, f_x \in \writeDots{x} \cup \readDots{x}$
+  we have that neither $\hbPOP{T}{e_x}{f_x}$, nor $\hbPOP{T}{f_x}{e_x}$ holds.
+  We prove this property by induction over the number of steps of
+  Algorithm~\ref{alg:dots-data-race} where we consider
+  all steps that affect the sets $\writeDots{x}$ and $\readDots{x}$.
+
+  \textbf{Case write(i,j,x):}
+  We need to show that after execution of
+  \bda{l}
+  \writeDots{x} = (\writeDots{x} - \threadDots{i}{x}) \cup \{ \writeEE{x}{j} \}
+  \\
+  \readDots{x} = (\readDots{x} - \threadDots{i}{x})
+  \eda
+  %
+  events in $\writeDots{x} \cup \readDots{x}$ remain concurrent to each other.
+
+  We clearly must remove $\threadDots{i}{x}$ as by the Complete Frontier Property,
+  the added write event $\writeEE{x}{j}$ happens later.
+
+  \begin{enumerate}
+  \item We first consider the set $\writeDots{x}$ and the
+    case of $e_x \in \writeDots{x}$ and $e_x \not\in \threadDots{i}{x}$ (P1).
+    We need to show that $e_x$ and $\writeEE{x}{j}$ are concurrent to each other.
+    Suppose the contrary where we distinguish among the following subcases.
+
+    \textbf{Subcase $\hbPOP{T}{e_x}{\writeEE{x}{j}}$:}
+    By the way the set $\writeDots{x}$ is constructed, we have that
+    $\not\exists e' \in \rwTx. \hbPOP{T}{e_x}{e'} \wedge \hbPOP{T}{e'}{\writeEE{x}{j}}$.
+    That is, there are no other reads/writes on $x$ in between $e_x$ and $\writeEE{x}{j}$.
+    By the Complete Frontier Property we find that $e_x \in \threadDots{i}{x}$.
+    This contradicts (P1).
+
+    \textbf{Subcase $\hbPOP{T}{\writeEE{x}{j}}{e_x}$:}
+    By the way the set $\writeDots{x}$ is constructed,
+    we have that $\pos{e_x} < \pos{\writeEE{x}{j}}$.
+    Hence, by Lemma~\ref{le:hapens-before-vs-trace-position} we reach
+    a contradiction to the assumption for this subcase.
+
+   \item We yet need to consider the set $\readDots{x}$ and the
+     case of $e_x \in \readDots{x}$ and $e_x \not\in \threadDots{i}{x}$.
+     Via similar reasoning as above, we can show that $e_x$
+     and $\writeEE{x}{j}$ are concurrent to each other.
+  \end{enumerate}
+
+  \textbf{Case read(i,j,x):}
+    We need to show that after execution of
+  \bda{l}
+     \writeDots{x} = \writeDots{x} - (\extract{\lastWriteDots{x}}{\rwTx} \cup \threadDots{i}{x})
+     \\ \readDots{x} = (\readDots{x} - \threadDots{i}{x}) \cup \{ \readEE{x}{j} \}
+  \eda
+  %
+  events in $\writeDots{x} \cup \readDots{x}$ remain concurrent to each other.
+
+  We clearly must remove $\threadDots{i}{x}$ (and $\extract{\lastWriteDots{x}}{\rwTx}$ for writes)
+  as by the Complete Frontier Property,
+  the added write event $\readEE{x}{j}$ happens later.
+
+  \begin{enumerate}
+  \item We first consider the set $\writeDots{x}$ and the
+        case of $e_x \in \writeDots{x}$ and $e_x \not\in \extract{\lastWriteDots{x}}{\rwTx} \cup \threadDots{i}{x}$ (P2).
+    We need to show that $e_x$ and $\readEE{x}{j}$ are concurrent to each other.
+    Suppose the contrary where we distinguish among the following subcases.
+
+    \textbf{Subcase $\hbPOP{T}{e_x}{\readEE{x}{j}}$:}
+    Again we can argue that there are reads/writes on $x$
+    inbetween $e_x$ and $\readEE{x}{j}$.
+    By the Complete Frontier Property
+    we find that $e_x \in \extract{\lastWriteDots{x}}{\rwTx} \cup \threadDots{i}{x}$.
+    This contradicts (P2).
+
+    \textbf{Subcase $\hbPOP{T}{\readEE{x}{j}}{e_x}$:}
+    This case is impossible as $\pos{e_x} < \pos{\readEE{x}{j}}$
+    and therfore contradicts Lemma~\ref{le:hapens-before-vs-trace-position}.
+
+  \item For the set $\readDots{x}$ the reasoning is again similar.
+    As we only consider reads, the set $\extract{\lastWriteDots{x}}{\rwTx}$ does not matter here.
+    \ms{check}
+  \end{enumerate}
+  %
+  \qed
+\end{proof}
+
+
+
+\begin{lemma}
+  Let $T$ be a well-formed trace and $x$ be a variable.
+  Let $\races$ be the set obtained by running Algorithm~\ref{alg:dots-data-race}
+  on $T$.
+  Then, for any pair $(e,f) \in \races$ we have that
+  $e$ and $f$ are either in a write-read or write-write data race.
+\end{lemma}
+\begin{proof}
+  The result follows by applying the same proof strategy
+  as for Lemma~\ref{ex:reads-writes-concurrent}.
+  \qed
+\end{proof}
+
+Algorithm~\ref{alg:dots-data-race} does not necessarily
+report all events that are in a race
+as demonstrated by the following example.
+
+\begin{example}
+  \label{ex:race-one}
+  All reads and writes involve some variable $x$.
+  For brevity we write $w_j$ as a shorthand for $\writeEE{x}{j}$.
+  Similarily, we write $r_j$ as a shorthand for $\readEE{x}{j}$.
+
+  We assume a trace where there are two consecutive writes in thread 1,
+  followed by a read and then a write in thread 2.
+  Finally, there is a write in thread 3.
+  So, the trace is of the form
+  $[\thread{1}{w_1}, \thread{1}{w_2},
+    \thread{2}{r_3}, \thread{2}{w_4},
+    \thread{3}{w_5}]$.
+
+  Here is the annotated trace after running Algorithm~\ref{alg:dots-data-race}.
+  After processing of each event, we write behind the event its set of thread dots.
+  We also keep track of the set $\writeDots{x} \cup \readDots{x}$.
+
+  \bda{llllllll}
+  & \thread{1}{}| \threadDots{1}{x} &&
+  \thread{2}{}| \threadDots{2}{x} &&
+  \thread{3}{}| \threadDots{3}{x} && \writeDots{x} \cup \readDots{x}
+  \\ \hline
+   1. &  w_1 \ \{w_1\} & &                     &&           && \{w_1\}
+  \\ 2. & w_2 \ \{w_2\} &  &                   &&           && \{w_2\}
+  \\ 3. &               &  & r_3 \ \{w_2,r_3\} &&           && \{r_3\}
+  \\ 4. &               &  & w_4 \ \{w_4\}     &&           && \{w_4\}
+  \\ 5. &               &  &               & & w_5 \ \{w_5\} && \{w_4, w_5\}
+  \eda
+  %
+  At position 3, the algorithm detects a write-read race among $(w_2, r_3)$
+  and at position 5, we encounter a write-race race among $(w_4, w_5)$.
+  So, the algorithm reports $\races = \{ (w_2, r_3), (w_4, w_5) \}$.
+  For the set of edge constraints we find
+  $\edges = \{ w_1 \gtEdge w_2 \gtEdge r_3 \gtEdge w_4 \}$.
+
+  However, based on the happens-before relation derived from $T$,
+  we find that there are two further write-write races
+  $(w_1,w_5)$ and $(w_2,w_5)$ and the write-read race $(r_3, w_5)$.
+\end{example}
+
+We can detect such further races by starting
+with an existing race pair such as $(w_4, w_5)$
+and then check if $w_5$ appears in the chain of events
+that are reachable from $w_4$ via edge constraints.
+From $w_4$ the following set $\{w_1, w_2, r_3, w_4\}$
+is reachable. We denote this set by $\reachE{w_4}$.
+For $w_5$, we have that $\reachE{w_5} = \{ w_5 \}$.
+For example, $w_1 \in \reachE{w_4}$ but $w_1 \not\in \reachE{w_5}$.
+Hence, we argue that $(w_1, w_5)$ is a further (write-write) race pair.
+The following result justifies this reasoning.
+
+
+\begin{definition}[Event Reach]
+  Let $T$ be a well-formed trace, $\edges$ be
+  the set of edge constraints computed by
+  running Algorithm~\ref{alg:dots-data-race} on $T$.
+  Let $e \in T$.
+  By induction, we define $\reachE{e}$ as the smallest set containing $e$
+  and for each $e' \in \reachE{e}$ and $f \gtEdge e' \in E$
+  we have that $f \in \reachE{e}$.
+\end{definition}
+
+
+\begin{lemma}[Reachable Races]
+  \label{le:reachable-races}
+  Let $T$ be a well-formed trace, $x$ be a variable and $e,f \in \rwTx$
+  be two events that are concurrent to each other.
+  Let $g\in T$ such that $g \in \reachE{e}$
+  and $g\not\in\reachE{f}$.
+  Then, we have that $g$ and $f$ are concurrent to each other.
+\end{lemma}
+\begin{proof}  the contrary.
+  We first consider the case that $\hbPOP{T}{f}{g}$.
+  From $g \in \reachE{e}$ and via Lemma~\ref{le:edges-vs-happens-before}
+  we can conclude that $\hbPOP{T}{g}{e}$
+  and then $\hbPOP{T}{f}{e}$.
+  This contradicts the assumption that $f, e$ are concurrent to each other.
+
+  Consider the case that $\hbPOP{T}{g}{f}$.
+  By the way the reach is constructed we can assume that $g \in \rwTx$.
+  Via Lemma~\ref{le:edges-vs-happens-before} we conclude that
+  $\hbRelCl{E}{g}{f}$. But this implies that $g \in \reachE{f}$.
+  This contradicts the assumption that $g\not\in\reachE{f}$.
+  \qed
+\end{proof}
+
+
+\begin{definition}[Dot Races]
+  Let $T$ be a well-formed trace,
+  $\races$ be the set of race pairs computed by
+  running Algorithm~\ref{alg:dots-data-race} on $T$.
+
+  We define by induction $\dotRaces$ to be the smallest set
+  with the following properties:
+  \begin{enumerate}
+    \item $\races \subseteq \dotRaces$.
+    \item For each pair $(e,f) \in \dotRaces$ we have that $(f,e) \in \dotRaces$.
+    \item For each pair $(e,f) \in \dotRaces$ where for some $g \in T$
+      such that $g \in \reachE{e}$ and $g \not\in \reachE{f}$ we have that
+      $(g,f) \in \dotRaces$ if both $g,f$ are write events or one is a
+      read and the other is a write event.
+  \end{enumerate}
+\end{definition}
+
+
+\begin{theorem}
+Each pair $(e,f) \in \dotRaces$ either represents a write-write or a write-read data race.
+\end{theorem}
+\begin{proof}
+  The result follows directly from Lemma~\ref{le:reachable-races}.
+  We only need to examine the special case of
+  races based on write-read dependencies, .e.g.~consider
+  $(w_2, r_3)$ from Example~\ref{ex:race-one}.
+  For such a pair $(e,f)$, $e$ and $f$ are not concurrent to each other.
+  Hence, the assumptions of Lemma~\ref{le:reachable-races} are not satisfied
+  and therefore there might be the danger that in the third
+  construction step of $\dotRaces$ pairs are added that do not constitute
+  a data race.
+
+  However, assuming that $e$ is the write that happens immediately before $f$,
+  we have that $\reachE{f} = \{ f \} \cup \reachE{e}$.
+  Hence, for any $g \in \reachE{f}$ and $g \not\in \reachE{e}$
+  we can conclude that $g=f$.
+  Hence, we only add the already existing race pair $(f,e)$.
+  \qed
+\end{proof}
+
+
+\begin{theorem}
+  Let $T$ be a well-formed trace.
+  Then, $\allRaces \subseteq \dotRaces$.
+\end{theorem}
+\begin{proof}
+  We consider the various forms of data races
+  as described in Definition~\ref{def:data-race}.
+
+  Consider a write-read data race due to a write-read dependency.
+  See case (2) in Definition~\ref{def:data-race}.
+  Such race pairs can definitely be identified by
+  Algorithm~\ref{alg:dots-data-race} as we record the last write
+  in $\lastWriteDots$.
+
+  Hence, w.l.o.g.~we consider $(e_x,f_x) \in \allRaces$
+  where $e_x$ and $f_x$ are concurrent to each other.
+  Suppose $(e_x,f_x)$ represents a write-write race.
+  Both events must have appeared in the sets $\threadDots{i}{x}$
+  and $\threadDots{k}{x}$ of their respective threads.
+  This also means that both must have appeared in $\writeDots{x}$
+  but possibly at different times.
+
+  Suppose $e_x$ appeared earlier in $\writeDots{x}$.
+  Then, we assume that there exist two chains of edge constraints of the form
+  \bda{lll}
+    e_x \gtEdge & \dots & \gtEdge e_x'
+  \\
+                & \dots & \gtEdge f_x
+  \eda
+  %
+  So, from $e_x$ there is a chain of events that lead to some $e_x'$
+  where $e_x'$ and $f_x$ show up in the their respective sets
+  of thread dots $\threadDots{i}{x}$ and $\threadDots{k}{x}$
+  at the same time.
+  None of the events inbetween $e_x$ and $e_x'$ can be happening
+  before $f_x$ as we assume $e_x$ and $f_x$ concurrent to each other.
+  Hence, $e_x'$ and $f_x$ must be concurrent to each other which means
+  that $e_x'$ does not appear in the thread dots of $f_x$ and vice versa.
+  Hence, $e_x'$ and $f_x$ must both appear in $\writeDots{x}$.
+  Hence, the pair $(e_x', f_x)$ is added to the set $\races$.
+
+  Then, we can argue that $e_x \in \reachE{e_x'}$ (P1)
+  and $e_x \not\in \reachE{f_x}$ (P2).
+  (P1) holds because $e_x$ appears before $e_x'$.
+  (P2) holds because otherwise $e_x$ and $f_x$ would not be concurrent to each other.
+  Hence, from (P1) and (P2) we can conclude that $(e_x, f_x) \in \dotRaces$.
+
+  Via similar reasoing, we can verify the case that $f_x$ appears earlier
+  and the case of a write-read data race.
+  \qed
+\end{proof}
+
+
+\begin{algorithm}
+\caption{VC + Edges Race Checker}\label{alg:vc-edges-race-checker}
+\begin{algorithmic}[1]
+\Procedure{lock}{$i,x$}
+\State $\threadVC{i} = \supVC{\threadVC{i}}{\lockVC{x}}$
+\EndProcedure
+\end{algorithmic}
+
+\begin{algorithmic}[1]
+\Procedure{unlock}{$i,x$}
+\State $\lockVC{x} = \threadVC{i}$
+
+\State $\incC{\threadVC{i}}{i}$
+\EndProcedure
+\end{algorithmic}
+
+\begin{algorithmic}[1]
+\Procedure{write}{$i,x$}
+\State $\raceVC{\writeVC{x}}{\threadVC{i}}$
+\State $\raceVC{\readVC{x}}{\threadVC{i}}$
+\State $\lastWriteVC{x} = \threadVC{i}$
+\State $\edges = \edges \cup
+       \{ \thread{j}{k} \gtEdge \thread{i}{\accVC{\threadVC{i}}{j}}
+       \mid \thread{j}{k} \in \writeVC{x} \cup \readVC{x} \wedge
+            k < \accVC{\threadVC{i}}{j} \}$
+\State $\writeVC{x} = \{ \thread{i}{\accVC{\threadVC{i}}{i}} \}
+\cup \{ \thread{j}{k} \mid \thread{j}{k} \in \writeVC{x} \wedge
+\neg (\accVC{\threadVC{i}}{j} > k) \}$
+\State $\readVC{x} = \{ \thread{j}{k} \mid \thread{j}{k} \in \readVC{x} \wedge
+         \neg (\accVC{\threadVC{i}}{j} > k) \}$
+\State $\incC{\threadVC{i}}{i}$
+\EndProcedure
+\end{algorithmic}
+
+\begin{algorithmic}[1]
+\Procedure{read}{$i,x$}
+\State $\raceVC{\writeVC{x}}{\threadVC{i}}$
+\State $\threadVC{i} = \maxC{\threadVC{i}}{\lastWriteVC{x}}$
+\State $\edges = \edges \cup
+       \{ \thread{j}{k} \gtEdge \thread{i}{\accVC{\threadVC{i}}{j}}
+       \mid \thread{j}{k} \in \writeVC{x} \cup \readVC{x} \wedge
+            k < \accVC{\threadVC{i}}{j} \}$
+\State $\readVC{x} = \{ \thread{i}{\accVC{\threadVC{i}}{i}} \}
+\cup \{ \thread{j}{k} \mid \thread{j}{k} \in \readVC{x} \wedge
+\neg (\accVC{\threadVC{i}}{j} > k) \}$
+\State $\writeVC{x} = \{ \thread{j}{k} \mid \thread{j}{k} \in \writeVC{x} \wedge
+         \neg (\accVC{\threadVC{i}}{j} > k) \}$
+\State $\incC{\threadVC{i}}{i}$
+\EndProcedure
+\end{algorithmic}
+
+\end{algorithm}
+
+
+
+We write $\raceVC{V_1}{V_2}$ as a short-hand for
+``if $\neg \lteVC{V_1}{V_2}$ then race detected''.
+
+\begin{algorithm}
+\caption{VC Race Checker}\label{alg:vc-race-checker}
+\begin{algorithmic}[1]
+\Procedure{lock}{$i,x$}
+\State $\threadVC{i} = \supVC{\threadVC{i}}{\lockVC{x}}$
+\EndProcedure
+\end{algorithmic}
+
+\begin{algorithmic}[1]
+\Procedure{unlock}{$i,x$}
+\State $\lockVC{x} = \threadVC{i}$
+
+\State $\incC{\threadVC{i}}{i}$
+\EndProcedure
+\end{algorithmic}
+
+\begin{algorithmic}[1]
+\Procedure{write}{$i,x$}
+\State $\raceVC{\writeVC{x}}{\threadVC{i}}$
+\State $\raceVC{\readVC{x}}{\threadVC{i}}$
+\State $\lastWriteVC{x} = \threadVC{i}$
+\State $\updateVC{\writeVC{x}}{i}{\accVC{\threadVC{i}}{i}}$
+\State $\incC{\threadVC{i}}{i}$
+\EndProcedure
+\end{algorithmic}
+
+\begin{algorithmic}[1]
+\Procedure{read}{$i,x$}
+\State $\raceVC{\writeVC{x}}{\threadVC{i}}$
+\State $\threadVC{i} = \maxC{\threadVC{i}}{\lastWriteVC{x}}$
+\State $\updateVC{\readVC{x}}{i}{\accVC{\threadVC{i}}{i}}$
+\State $\incC{\threadVC{i}}{i}$
+\EndProcedure
+\end{algorithmic}
+
+\end{algorithm}
+
+
+\begin{verbatim}
+note:
+
+
+\end{verbatim}
+
+
+\bibliography{main}
+
+\appendix
+
+%--------------------------------------------------------
+%--------------------------------------------------------
+\section{Comments}
+
+%--------------------------------------------------------
+\subsection{Complete Frontier Definition~\ref{def:complete-frontier}}
+
+Consider the following additional condition.
+
+\begin{enumerate}
+\item $\forall f.  (\hbPOP{T}{f}{e} \wedge \not \exists e' \in RW.
+           \hbPOP{T}{f}{e'} \wedge  \hbPOP{T}{e'}{e}) \implies f \in M$.
+\end{enumerate}
+
+This condition condition cannot be maintained by $\threadDots{i}{x}$.
+Consider the trace
+$$
+[\thread{1}{\writeE{x}{1}},
+                             \thread{2}{\readE{x}{2}},
+                             \thread{2}{\readE{x}{3}}]
+$$
+%
+Before processing $\readE{x}{2}$, we find $\threadDots{2}{x} = \{ \}$.
+However, due to the write-read dependency
+we have that $\hbPOP{T}{\writeE{x}{1}}{\readE{x}{2}}$.
+Assuming the above, this implies that $\writeE{x}{1} \in \threadDots{2}{x}$.
+
+
+\end{document}
